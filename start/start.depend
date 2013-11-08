@@ -1,0 +1,14 @@
+# depslib dependency file v1.0
+1383870813 source:c:\users\ctc127usr\desktop\start\main.cpp
+	<iostream>
+	<map>
+	<string>
+
+1383887059 source:c:\users\james\documents\github\toe\start\main.cpp
+	"instructions_map.h"
+
+1383889229 c:\users\james\documents\github\toe\start\instructions_map.h
+	<iostream>
+	<map>
+	<string>
+
