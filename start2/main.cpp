@@ -1,35 +1,29 @@
-//#include "instructions_map.h"
-//#include "reader.h"
 #include <iostream>
 #include <map>
 #include <string>
 using namespace std;
 
-void reader(string &lineIn){
-    cin >> lineIn;
-}
-
 class Format{
-    public:
-        char form, style;
-        int opcode, func;
-        //The constructor takes 4 arguments and saves them to the variables.
-        Format(char formIn, char styleIn, int opcodeIn, int funcIn){
-            form = formIn;    // There's probably a more concise way.
-            style = styleIn;  // But this type of constructor is what we used
-            opcode = opcodeIn;// in my Java course. IMO it is very clear.
-            func = funcIn;
-        }
-        Format(char formIn, char styleIn, int opcodeIn){ // 3 arg constructor
-//          Format(formIn, styleIn, opcodeIn, 0); // Java Const. overloading
-// Sure would be nice if the compiler warned me that the above line is useless
-            form = formIn;    // Boo, Copy/Paste! Boo!
-            style = styleIn;
-            opcode = opcodeIn;
-            func = 0;
-        }
-        Format(){ // map requires the class have a default constructor
-        }         // this one does basically nothing.
+public:
+    char form, style;
+    int opcode, func;
+
+    Format(char f, char s, int o, int fun){ // 4 arg constructor
+        init(f,s,o,fun);
+    }
+    Format(char f, char s, int o){ // 3 arg constructor
+        init(f,s,o,0);
+    }
+    Format(){ // map requires the class have a default constructor
+    }         // this one does basically nothing.
+private:
+    void init(char &f, char &s, int &o, int fun){
+        form = f;
+        style = s;
+        opcode = o;
+        func = fun;
+        return;
+    }
 };
 
 void fillMap(map<string,Format> &Instrucs) {
@@ -170,38 +164,117 @@ void fillMap(map<string,Format> &Instrucs) {
 
     return;
 }
-
-
-void tester(string in_in, map<string,Format> &Instrucs){
+class Assem{
+public:
     map<string,Format>::iterator kindaPointer; // Treat it like a pointer.
-    kindaPointer = Instrucs.find(in_in);
-    if (kindaPointer == Instrucs.end())
-        cout << endl << in_in << " is not a valid instruction"<<endl;
-    else{
+    string in_in;
+    void tester(string, map<string,Format> &);
+    int assem1(){
+        int temp = (kindaPointer->second.opcode)<<24;
+        char form = kindaPointer->second.form;
+        if(form == 'R'){
+            return temp+r();
+        }else if(form =='I'){
+            return temp+i();
+        }else if(form =='J'){
+            return temp+j();
+        }else {
+            cout << "ERROR! ERROR! VERY BAD!"<<endl;
+            return 0;
+        }
+    }
+private:
+    int r(){
+        talk();
+        return 0;
+    }
+    int i(){
+        talk();
+        return 0;
+    }
+    int j(){
+        talk();
+        return 0;
+    }
+    void talk(){
         cout <<endl<<in_in <<" is in "<< kindaPointer->second.form
              <<" format, and style "  << kindaPointer->second.style << endl;
         cout <<"It has an opcode of " << kindaPointer->second.opcode
              <<" and function code "  << kindaPointer->second.func << endl;
     }
+};
+void Assem::tester(string s, map<string,Format> &Instrucs){
+    in_in = s;
+    int counter = 0;
+    kindaPointer = Instrucs.find(in_in);
+    if (kindaPointer == Instrucs.end()){
+        //cout << endl << in_in << " is not a valid instruction"<< endl;
+        return;
+    }else{
+        int bytes = assem1();
+        cout<< bytes<<endl<<endl;
+        for (int n=1;n<=8;n++){
+            int temp = (bytes>>(4*(8-n)))&15;
+            switch (temp){
+                case 10:
+                    cout << "a";
+                    break;
+                case 11:
+                    cout << "b";
+                    break;
+                case 12:
+                    cout << "c";
+                    break;
+                case 13:
+                    cout << "d";
+                    break;
+                case 14:
+                    cout << "e";
+                    break;
+                case 15:
+                    cout << "f";
+                    break;
+                default:
+                    cout << temp;
+            }
+        }
+        cout << " ";
+        counter++;
+        if (counter == 3){
+            cout<<endl;
+        }else if(counter !=4 && counter %4 == 0){
+            cout<<endl;
+        }
+        return;
+    }
 }
+
 int main() {
+    cout<<"[400024]"<<endl;
     map<string,Format> Instrucs;
     fillMap(Instrucs);
-    string lineIn = "hello";
-    int i =0;
-//
-//    tester("movz", Instrucs);
-//    tester("sllv", Instrucs);
-//    tester("slti", Instrucs);
-//    tester("ORI", Instrucs);
-//    tester("tlti", Instrucs);
-//    tester("potato", Instrucs);
-//    tester("jal", Instrucs);
-//    reader(lineIn);
-//    tester(lineIn, Instrucs);
-    while ((cin >> lineIn)&&(i<500)){
-        cout << lineIn;
-        i++;
+    Assem instance = Assem();
+    string s1;
+    cin >> s1;
+    while(s1 !=".end"){
+        if(s1==".data"){
+            while(s1 !=".text" && s1 !=".end"){
+                //Save either input or assembled bytes (with "[10010000]\n" tag)
+                //to a file
+                cin >> s1;
+            }
+            if (s1 ==".end")
+                break;
+        } else {
+            instance.tester(s1, Instrucs);
+            cin >> s1;
+        }
     }
+//    instance.tester("movz", Instrucs);
+//    instance.tester("sllv", Instrucs);
+//    instance.tester("slti", Instrucs);
+//    instance.tester("ORI", Instrucs);
+//    instance.tester("potato", Instrucs);
+//    instance.tester("jal", Instrucs);
     return 0;
 }

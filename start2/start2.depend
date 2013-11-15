@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1384468649 source:c:\users\ctc127usr\desktop\start2\main.cpp
+	<iostream>
+	<map>
+	<string>
+

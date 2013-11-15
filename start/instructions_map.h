@@ -15,7 +15,7 @@ class Format{
             func = funcIn;
         }
         Format(char formIn, char styleIn, int opcodeIn){ // 3 arg constructor
-//          Format(formIn, styleIn, opcodeIn, 0); // I tried to Java :(
+//          Format(formIn, styleIn, opcodeIn, 0); // Java Const. overloading
 // Sure would be nice if the compiler warned me that the above line is useless
             form = formIn;    // Boo, Copy/Paste! Boo!
             style = styleIn;
@@ -23,7 +23,7 @@ class Format{
             func = 0;
         }
         Format(){ // map requires the class have a default constructor
-        }         // this one does basically nada.
+        }         // this one does basically nothing.
 };
 
 void fillMap(map<string,Format> &Instrucs) {
