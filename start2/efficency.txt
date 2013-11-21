@@ -1,0 +1,12 @@
+declare the map to contain <string, Format*> instead of <string, Format> as it does currently.
+
+write "&" in front of each use of the Format constructor.
+
+change every use of	kindaPointer->second.whatever to
+			kindaPointer->second->whatever
+
+put the map in a class.
+
+make fillMap a function in that class.
+
+instantiate the class and call fillMap on it.

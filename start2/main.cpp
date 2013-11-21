@@ -1,5 +1,6 @@
 #include <iostream>
 #include <map>
+#include <cstdio>
 #include <string>
 using namespace std;
 
@@ -170,7 +171,7 @@ public:
     string in_in;
     void tester(string, map<string,Format> &);
     int assem1(){
-        int temp = (kindaPointer->second.opcode)<<24;
+        int temp = (kindaPointer->second.opcode)<<26;
         char form = kindaPointer->second.form;
         if(form == 'R'){
             return temp+r();
