@@ -1,8 +1,8 @@
 #include <iostream>
 #include <map>
-#include <cstdio>
-#include <string>
 using namespace std;
+
+void outputHex(int);
 
 class Format{
 public:
@@ -15,8 +15,8 @@ public:
     Format(char f, char s, int o){ // 3 arg constructor
         init(f,s,o,0);
     }
-    Format(){ // map requires the class have a default constructor
-    }         // this one does basically nothing.
+    Format(){ // Mapvoid outputHex(int someInt) requires the class have a default constructor.
+    }         // This one does basically nothing.
 private:
     void init(char &f, char &s, int &o, int fun){
         form = f;
@@ -28,10 +28,10 @@ private:
 };
 
 void fillMap(map<string,Format> &Instrucs) {
-
-    // Below I add each instruction to the Instrucs map
-    // The grouping, ordering, and category descriptions are shamelessly
-    // copied from Tom Murphy's hypergrade instructions pdf
+    /* Below I add each instruction to the Instrucs map
+     * The grouping, ordering, and category descriptions are shamelessly
+     * copied from Tom Murphy's hypergrade instructions pdf
+     */
 
     //R format with rd, rs, and rt
 
@@ -214,32 +214,7 @@ void Assem::tester(string s, map<string,Format> &Instrucs){
     }else{
         int bytes = assem1();
         cout<< bytes<<endl<<endl;
-        for (int n=1;n<=8;n++){
-            int temp = (bytes>>(4*(8-n)))&15;
-            switch (temp){
-                case 10:
-                    cout << "a";
-                    break;
-                case 11:
-                    cout << "b";
-                    break;
-                case 12:
-                    cout << "c";
-                    break;
-                case 13:
-                    cout << "d";
-                    break;
-                case 14:
-                    cout << "e";
-                    break;
-                case 15:
-                    cout << "f";
-                    break;
-                default:
-                    cout << temp;
-            }
-        }
-        cout << " ";
+        ::outputHex(bytes);
         counter++;
         if (counter == 3){
             cout<<endl;
@@ -249,8 +224,39 @@ void Assem::tester(string s, map<string,Format> &Instrucs){
         return;
     }
 }
-
+void outputHex(int someInt){
+/*  This function is completely superfluos. Because of the line 'cout<<hex;' at the
+ *  beginning of main, 'cout<<someInt<<" ";' will produce the same output.
+ */
+    for (int n=1;n<=8;n++){
+        int temp = (someInt>>(4*(8-n)))&15;
+        switch (temp){
+            case 10:
+                cout << "a";
+                break;
+            case 11:
+                cout << "b";
+                break;
+            case 12:
+                cout << "c";
+                break;
+            case 13:
+                cout << "d";
+                break;
+            case 14:
+                cout << "e";
+                break;
+            case 15:
+                cout << "f";
+                break;
+            default:
+                cout << temp;
+        }
+    }
+    cout << " ";
+}
 int main() {
+    cout<<hex;
     cout<<"[400024]"<<endl;
     map<string,Format> Instrucs;
     fillMap(Instrucs);
@@ -271,11 +277,5 @@ int main() {
             cin >> s1;
         }
     }
-//    instance.tester("movz", Instrucs);
-//    instance.tester("sllv", Instrucs);
-//    instance.tester("slti", Instrucs);
-//    instance.tester("ORI", Instrucs);
-//    instance.tester("potato", Instrucs);
-//    instance.tester("jal", Instrucs);
     return 0;
 }
