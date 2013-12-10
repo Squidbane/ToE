@@ -1,8 +1,16 @@
 #include <iostream>
+#include <string>
 #include <map>
 using namespace std;
 
-void outputHex(int);
+const int maxSpaces = 64;
+enum regName { Szero = 0, Sat, Sv0, Sv1, Sa0, Sa1, Sa2, Sa3,
+    St0, St1, St2, St3, St4, St5, St6, St7, Ss0, Ss1, Ss2, Ss3,
+    Ss4, Ss5, Ss6, Ss7, St8, St9, Sk0, Sk1, Sgp, Ssp, Sfp, Sra};
+// Although GCC allows dollar signs, they're not in the C++ standard.
+// Not all standards-compliant compilers support them.
+
+void outputHex(int); // I wrote this func before I knew about cout<<hex
 
 class Format{
 public:
@@ -15,7 +23,7 @@ public:
     Format(char f, char s, int o){ // 3 arg constructor
         init(f,s,o,0);
     }
-    Format(){ // Mapvoid outputHex(int someInt) requires the class have a default constructor.
+    Format(){ // Map requires the class have a default constructor.
     }         // This one does basically nothing.
 private:
     void init(char &f, char &s, int &o, int fun){
@@ -30,7 +38,13 @@ private:
 void fillMap(map<string,Format> &Instrucs) {
     /* Below I add each instruction to the Instrucs map
      * The grouping, ordering, and category descriptions are shamelessly
-     * copied from Tom Murphy's hypergrade instructions pdf
+     * copied from Tom Murphy's hypergrade instructions pdf.
+     *
+     * I think this code is pretty, but it's not efficient.
+     * If I'm not mistaken, a copy is made of each of those Format objects
+     * and that copy has the scope of Instrucs. The copy is what the map
+     * actually points to. GCC has copy-elision enabled by default, so this
+     * may not be an issue.
      */
 
     //R format with rd, rs, and rt
@@ -168,8 +182,9 @@ void fillMap(map<string,Format> &Instrucs) {
 class Assem{
 public:
     map<string,Format>::iterator kindaPointer; // Treat it like a pointer.
-    string in_in;
-    void tester(string, map<string,Format> &);
+    string string0, string1;
+    void getLineJK();
+    void tester(map<string,Format> &);
     int assem1(){
         int temp = (kindaPointer->second.opcode)<<26;
         char form = kindaPointer->second.form;
@@ -186,34 +201,38 @@ public:
     }
 private:
     int r(){
-        talk();
+        //talk();
         return 0;
     }
     int i(){
-        talk();
+        //talk();
         return 0;
     }
     int j(){
-        talk();
+        //talk();
         return 0;
     }
     void talk(){
-        cout <<endl<<in_in <<" is in "<< kindaPointer->second.form
+        cout <<endl<<string1 <<" is in "<< kindaPointer->second.form
              <<" format, and style "  << kindaPointer->second.style << endl;
         cout <<"It has an opcode of " << kindaPointer->second.opcode
              <<" and function code "  << kindaPointer->second.func << endl;
     }
 };
-void Assem::tester(string s, map<string,Format> &Instrucs){
-    in_in = s;
+void Assem::getLineJK(){
+    getline(cin, string0);
+    size_t spaceLoc = string0.find(' ');
+    string1 = string0.substr(0,spaceLoc);
+}
+void Assem::tester(map<string,Format> &Instrucs){
     int counter = 0;
-    kindaPointer = Instrucs.find(in_in);
+    kindaPointer = Instrucs.find(string1);
     if (kindaPointer == Instrucs.end()){
-        //cout << endl << in_in << " is not a valid instruction"<< endl;
+        //cout << endl << string1 << " is not a valid instruction"<< endl;
         return;
     }else{
         int bytes = assem1();
-        cout<< bytes<<endl<<endl;
+        //cout<< bytes<<endl<<endl;
         ::outputHex(bytes);
         counter++;
         if (counter == 3){
@@ -225,7 +244,7 @@ void Assem::tester(string s, map<string,Format> &Instrucs){
     }
 }
 void outputHex(int someInt){
-/*  This function is completely superfluos. Because of the line 'cout<<hex;' at the
+/*  This function is completely superfluous. Because of the line 'cout<<hex;' at the
  *  beginning of main, 'cout<<someInt<<" ";' will produce the same output.
  */
     for (int n=1;n<=8;n++){
@@ -256,26 +275,24 @@ void outputHex(int someInt){
     cout << " ";
 }
 int main() {
+    int copyCount = 0;
     cout<<hex;
     cout<<"[400024]"<<endl;
     map<string,Format> Instrucs;
     fillMap(Instrucs);
     Assem instance = Assem();
-    string s1;
-    cin >> s1;
-    while(s1 !=".end"){
-        if(s1==".data"){
-            while(s1 !=".text" && s1 !=".end"){
+    do{
+        instance.getLineJK();
+        if(instance.string1==".data"){
+            while(instance.string1 !=".text" && instance.string1 !=".end"){
                 //Save either input or assembled bytes (with "[10010000]\n" tag)
                 //to a file
-                cin >> s1;
+                instance.getLineJK();
             }
-            if (s1 ==".end")
-                break;
         } else {
-            instance.tester(s1, Instrucs);
-            cin >> s1;
+            instance.tester(Instrucs);
+            //cin >> s1;///
         }
-    }
+    }while(instance.string1 !=".end");
     return 0;
 }
