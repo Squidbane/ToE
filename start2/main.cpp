@@ -5,12 +5,14 @@
 using namespace std;
 
 const int MAX_SPACES = 64;
+const int LAST_SPACE = MAX_SPACES-1;
 string regNames[32] = {"$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2",
     "$a3", "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7", "$s0",
     "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7", "$t8", "$t9", "$k0",
     "$k1", "$gp", "$sp", "$fp", "$ra"};
 
 void outputHex(int); // I wrote this func before I knew about cout<<hex
+int getRegNum(string &);
 
 class Format{
 public:
@@ -144,7 +146,7 @@ void fillMap(map<string,Format> &Instrucs) {
     Instrucs["bgezal"] = Format('I', '3', 0x01, 0x11);
     Instrucs["blez"]   = Format('I', '3', 0x06, 0x00);
     Instrucs["bgtz"]   = Format('I', '3', 0x07, 0x00);
-    Instrucs["bltzal"] = Format('I', '3', 0x07, 0x10);
+    Instrucs["bltzal"] = Format('I', '3', 0x01, 0x10);
 
     //I format with rt and immediate value
 
@@ -184,14 +186,18 @@ class Assem{
 public:
     map<string,Format>::iterator kindaPointer; // Treat it like a pointer.
     string string0, mnemonic;
-    int spaceLoc;
-    string operands[MAX_SPACES-1];
+    char form, style;
+    int func;
+    int spaceLoc, counter;
+    string operands[MAX_SPACES];
     void getLineJK();
     void loadOperands();
     void tester(map<string,Format> &);
     int assem1(){
         int temp = (kindaPointer->second.opcode)<<26;
-        char form = kindaPointer->second.form;
+        form = kindaPointer->second.form;
+        style = kindaPointer->second.style;
+        func = kindaPointer->second.func;
         if(form == 'R'){
             return temp+r();
         }else if(form =='I'){
@@ -204,9 +210,45 @@ public:
         }
     }
 private:
+    int r1(int rs, int rt, int rd, int shft){
+        return (::getRegNum(operands[rs])<<21) + (::getRegNum(operands[rt])<<16) +
+        (::getRegNum(operands[rd])<<11) + (::getRegNum(operands[shft])<<6) + func;
+    }
     int r(){
-        //talk();
-        return 0;
+        switch (style){
+            case '1':
+                return r1(1,2,0,LAST_SPACE); // Aformentioned lazy hack
+                break;
+            case '2':
+                return r1(2,1,0,LAST_SPACE);
+                break;
+            case '3':
+                return (::getRegNum(operands[LAST_SPACE])<<21) + (::getRegNum(operands[1])<<16) +
+                    (::getRegNum(operands[0])<<11) + (atoi(operands[2].c_str())<<6) + func;
+                break;
+            case '4':
+                return r1(0,1,LAST_SPACE,LAST_SPACE);
+                break;
+            case '5':
+                return r1(1,0,0,LAST_SPACE);
+                break;
+            case '6':
+                return r1(0,LAST_SPACE,1,LAST_SPACE); // Spot the potential bug.
+                break;
+            case '7':
+                return r1(LAST_SPACE,LAST_SPACE,0,LAST_SPACE);
+                break;
+            case '8':
+                return r1(0,LAST_SPACE,LAST_SPACE,LAST_SPACE);
+                break;
+            case '9':
+                return (::getRegNum(operands[LAST_SPACE])<<21) + (::getRegNum(operands[LAST_SPACE])<<16) +
+                     (atoi(operands[0].c_str())<<11)+ (::getRegNum(operands[LAST_SPACE])<<6) + func;
+                break;
+            case 'a':
+                return r1(LAST_SPACE,LAST_SPACE,LAST_SPACE,LAST_SPACE);
+                break;
+        }
     }
     int i(){
         //talk();
@@ -225,17 +267,35 @@ private:
 };
 void Assem::getLineJK(){
     getline(cin, string0);
+    spaceLoc = 0;
+    while (true){
+        spaceLoc = string0.find('\t');
+        if (spaceLoc == -1) {
+            break;
+        } else {
+            string0.replace(spaceLoc, 1," ");
+        }
+    }
+    string0 = string0.substr(string0.find(':')+1,-1); // Remove labels FIX FOR QUESTION 3
+    while (string0[0]==' '){
+        spaceLoc = string0.find(' ');
+        string0 = string0.substr(spaceLoc+1,-1);
+    }
     spaceLoc = string0.find(' ');
     mnemonic = string0.substr(0,spaceLoc);
 }
 
 void Assem::loadOperands(){ // I may have chosen the absolute worst way to do this.
     int i=0;
+    for (int k=0; k<MAX_SPACES; k++){
+        operands[k] = "$zero"; // This is for a lazy hack.
+    }
+    operands[1] = "$ra"; // An even lazier hack.
     int nextSpace;
-    cout <<(string0.find(' ',spaceLoc+1))<<" " <<
-            (string0.find(',',spaceLoc+1))<<endl;
-    while ((spaceLoc !=-1)&&(i<=MAX_SPACES-1)&&((string0.find(' ',spaceLoc+1)>0)||
-            (string0.find(',',spaceLoc+1)>0))){
+    while ((spaceLoc !=-1)&&(i<MAX_SPACES-1)&&( (string0.find(' ',spaceLoc+1)>0)||
+            (string0.find(',',spaceLoc+1)>0) )){
+        // The above means: 'while there's still chunks of text in string0 that need
+        // to be saved to operands[], do this:'
         if ((string0.find(' ',spaceLoc+1)<(string0.find(',',spaceLoc+1)))&&
                 string0.find(' ',spaceLoc+1)>0) {
             // If the next space comes before the next comma, and the next space
@@ -244,20 +304,19 @@ void Assem::loadOperands(){ // I may have chosen the absolute worst way to do th
             if (nextSpace != spaceLoc+1){
                 // Don't bother saving the little string if it's only 1 character.
                 operands[i] = string0.substr(spaceLoc+1,nextSpace-spaceLoc-1);
-                cout << operands[i] << "alpha"<<spaceLoc<< endl;
+                //cout << operands[i] << endl; // for debugging
                 i++;
-                //spaceLoc = nextSpace;
             }
             spaceLoc = nextSpace;
         } else {
             // The while loop conditions plus the if conditions mean that this
             // line only runs if a comma exists on the line after spaceLoc but
             // before the next space.
-            nextSpace = string0.find(',',spaceLoc+1);
+            nextSpace = string0.find(',',spaceLoc+1); // COMMA
             if (nextSpace != spaceLoc+1){
                 // Don't bother saving the little string if it's only 1 character.
                 operands[i] = string0.substr(spaceLoc+1,nextSpace-spaceLoc-1);
-                cout << operands[i] << "beta" << spaceLoc<< endl;
+                //cout << operands[i] << endl; // for debugging
                 i++;
             }
             spaceLoc = nextSpace;
@@ -266,7 +325,6 @@ void Assem::loadOperands(){ // I may have chosen the absolute worst way to do th
 }
 
 void Assem::tester(map<string,Format> &Instrucs){
-    int counter = 0;
     kindaPointer = Instrucs.find(mnemonic);
     if (kindaPointer == Instrucs.end()){
         //cout << endl << string1 << " is not a valid instruction"<< endl;
@@ -277,10 +335,8 @@ void Assem::tester(map<string,Format> &Instrucs){
         //cout<< bytes<<" ";
         ::outputHex(bytes);
         counter++;
-        if (counter == 3){
-            cout<<endl;
-        }else if(counter !=4 && counter %4 == 0){
-            cout<<endl;
+        if (counter %4 == 3){
+            cout<<"\n";
         }
         return;
     }
@@ -322,17 +378,17 @@ int getRegNum(string &reg){
 
 int main() {
     cout<<hex;
-    string spam = "$gp";
-    cout<<  getRegNum(spam) << endl;
     cout<<"[400024]"<<endl;
     map<string,int> RegNames;
     map<string,Format> Instrucs;
     fillMap(Instrucs);
     Assem instance = Assem();
+    instance.counter = 0;
     do{
         instance.getLineJK();
         if(instance.mnemonic==".data"){
             while(instance.mnemonic !=".text" && instance.mnemonic !=".end"){
+                cout << endl;
                 //Save either input or assembled bytes (with "[10010000]\n" tag)
                 //to a file
                 instance.getLineJK();
@@ -342,5 +398,6 @@ int main() {
             //cin >> s1;///
         }
     }while(instance.mnemonic !=".end");
+    cout << endl;
     return 0;
 }
