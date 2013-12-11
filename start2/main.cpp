@@ -1,14 +1,14 @@
 #include <iostream>
+#include <algorithm>
 #include <string>
 #include <map>
 using namespace std;
 
-const int maxSpaces = 64;
-enum regName { Szero = 0, Sat, Sv0, Sv1, Sa0, Sa1, Sa2, Sa3,
-    St0, St1, St2, St3, St4, St5, St6, St7, Ss0, Ss1, Ss2, Ss3,
-    Ss4, Ss5, Ss6, Ss7, St8, St9, Sk0, Sk1, Sgp, Ssp, Sfp, Sra};
-// Although GCC allows dollar signs, they're not in the C++ standard.
-// Not all standards-compliant compilers support them.
+const int MAX_SPACES = 64;
+string regNames[32] = {"$zero", "$at", "$v0", "$v1", "$a0", "$a1", "$a2",
+    "$a3", "$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7", "$s0",
+    "$s1", "$s2", "$s3", "$s4", "$s5", "$s6", "$s7", "$t8", "$t9", "$k0",
+    "$k1", "$gp", "$sp", "$fp", "$ra"};
 
 void outputHex(int); // I wrote this func before I knew about cout<<hex
 
@@ -179,11 +179,15 @@ void fillMap(map<string,Format> &Instrucs) {
 
     return;
 }
+
 class Assem{
 public:
     map<string,Format>::iterator kindaPointer; // Treat it like a pointer.
-    string string0, string1;
+    string string0, mnemonic;
+    int spaceLoc;
+    string operands[MAX_SPACES-1];
     void getLineJK();
+    void loadOperands();
     void tester(map<string,Format> &);
     int assem1(){
         int temp = (kindaPointer->second.opcode)<<26;
@@ -213,7 +217,7 @@ private:
         return 0;
     }
     void talk(){
-        cout <<endl<<string1 <<" is in "<< kindaPointer->second.form
+        cout <<endl<<mnemonic <<" is in "<< kindaPointer->second.form
              <<" format, and style "  << kindaPointer->second.style << endl;
         cout <<"It has an opcode of " << kindaPointer->second.opcode
              <<" and function code "  << kindaPointer->second.func << endl;
@@ -221,18 +225,56 @@ private:
 };
 void Assem::getLineJK(){
     getline(cin, string0);
-    size_t spaceLoc = string0.find(' ');
-    string1 = string0.substr(0,spaceLoc);
+    spaceLoc = string0.find(' ');
+    mnemonic = string0.substr(0,spaceLoc);
 }
+
+void Assem::loadOperands(){ // I may have chosen the absolute worst way to do this.
+    int i=0;
+    int nextSpace;
+    cout <<(string0.find(' ',spaceLoc+1))<<" " <<
+            (string0.find(',',spaceLoc+1))<<endl;
+    while ((spaceLoc !=-1)&&(i<=MAX_SPACES-1)&&((string0.find(' ',spaceLoc+1)>0)||
+            (string0.find(',',spaceLoc+1)>0))){
+        if ((string0.find(' ',spaceLoc+1)<(string0.find(',',spaceLoc+1)))&&
+                string0.find(' ',spaceLoc+1)>0) {
+            // If the next space comes before the next comma, and the next space
+            // is not in position '-1':
+            nextSpace = string0.find(' ',spaceLoc+1);
+            if (nextSpace != spaceLoc+1){
+                // Don't bother saving the little string if it's only 1 character.
+                operands[i] = string0.substr(spaceLoc+1,nextSpace-spaceLoc-1);
+                cout << operands[i] << "alpha"<<spaceLoc<< endl;
+                i++;
+                //spaceLoc = nextSpace;
+            }
+            spaceLoc = nextSpace;
+        } else {
+            // The while loop conditions plus the if conditions mean that this
+            // line only runs if a comma exists on the line after spaceLoc but
+            // before the next space.
+            nextSpace = string0.find(',',spaceLoc+1);
+            if (nextSpace != spaceLoc+1){
+                // Don't bother saving the little string if it's only 1 character.
+                operands[i] = string0.substr(spaceLoc+1,nextSpace-spaceLoc-1);
+                cout << operands[i] << "beta" << spaceLoc<< endl;
+                i++;
+            }
+            spaceLoc = nextSpace;
+        }
+    }
+}
+
 void Assem::tester(map<string,Format> &Instrucs){
     int counter = 0;
-    kindaPointer = Instrucs.find(string1);
+    kindaPointer = Instrucs.find(mnemonic);
     if (kindaPointer == Instrucs.end()){
         //cout << endl << string1 << " is not a valid instruction"<< endl;
         return;
     }else{
+        loadOperands();
         int bytes = assem1();
-        //cout<< bytes<<endl<<endl;
+        //cout<< bytes<<" ";
         ::outputHex(bytes);
         counter++;
         if (counter == 3){
@@ -274,17 +316,23 @@ void outputHex(int someInt){
     }
     cout << " ";
 }
+int getRegNum(string &reg){
+    return (find(regNames, regNames+31, reg))-regNames;
+}
+
 int main() {
-    int copyCount = 0;
     cout<<hex;
+    string spam = "$gp";
+    cout<<  getRegNum(spam) << endl;
     cout<<"[400024]"<<endl;
+    map<string,int> RegNames;
     map<string,Format> Instrucs;
     fillMap(Instrucs);
     Assem instance = Assem();
     do{
         instance.getLineJK();
-        if(instance.string1==".data"){
-            while(instance.string1 !=".text" && instance.string1 !=".end"){
+        if(instance.mnemonic==".data"){
+            while(instance.mnemonic !=".text" && instance.mnemonic !=".end"){
                 //Save either input or assembled bytes (with "[10010000]\n" tag)
                 //to a file
                 instance.getLineJK();
@@ -293,6 +341,6 @@ int main() {
             instance.tester(Instrucs);
             //cin >> s1;///
         }
-    }while(instance.string1 !=".end");
+    }while(instance.mnemonic !=".end");
     return 0;
 }
