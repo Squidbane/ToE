@@ -374,7 +374,7 @@ void dataReader(void(*FunctionPointer)()){
     string readerString = instance.string0;
     int start = instance.string0.find(' ');
     if (start != -1) {
-        readerString = instance.string0.substr(start,-1); //skip over the label
+        readerString = instance.string0.substr(start,-1); //skip over the mnemonic
         while (readerString[0]==' '){ //remove leading spaces
             readerString = readerString.substr(1,-1);
         }
@@ -383,12 +383,17 @@ void dataReader(void(*FunctionPointer)()){
     start = 0;
     int commaLoc = 0;
     do {
-        commaLoc = dataString.find(',',start);
+        commaLoc = readerString.find(',',start);
+   //         cout <<dataString<<"commaLoc = " << commaLoc<< endl;
         if(commaLoc !=-1){
-            dataString = readerString.substr(start,commaLoc);
+            dataString = readerString.substr(start,commaLoc-start);
+    //        cout <<dataString<<"commaLoc = " << commaLoc<< endl;
+            FunctionPointer();
+            start = commaLoc+1;
+        } else {
+            dataString = readerString.substr(start,commaLoc-start);
+            FunctionPointer();
         }
-        FunctionPointer();
-        start = commaLoc+1;
     }while(commaLoc != -1);
 }
 void asciiFun(){
@@ -415,14 +420,24 @@ void asciizFun(){
     }
 }
 void floatFun(){
+    if (characters != 0){
+        characters = 0;
+        dataOuts.push_back(dataInHex);
+    }
+    float flo = atof(dataString.c_str());
+    long *point = (long *)&flo; //The baddest of practices.
+//    cout << "the contents of " << point << " are " << *point << endl;
+    dataInHex = (*point)&(-1); //4294967295 aka 0xffffff
+    dataOuts.push_back(dataInHex);
+    dataInHex = 0;
 }
 void spaceFun(){
     while (dataString[0]==' '){
         dataString = dataString.substr(1,-1);
     }
-    cout << dataString << " " << dataString.c_str();
+//    cout << dataString << " " << dataString.c_str();
     int temp = atoi(dataString.c_str());
-    cout <<endl<<endl<< temp <<endl <<endl;
+//    cout <<endl<<endl<< temp <<endl <<endl;
     for (int i = 0; i< temp; i++){
         characters++;
         if (characters == 4){
@@ -434,10 +449,59 @@ void spaceFun(){
     }
 }
 void wordFun(){
+    if (characters != 0){
+        characters = 0;
+        dataOuts.push_back(dataInHex);
+    }
+    int temp = dataString.find('x');
+    if (temp != -1){
+        dataString = dataString.substr(temp+1,-1);
+        temp = 0;
+        for (int n=0;n<dataString.length();n++){
+            if ((dataString[n] >='0')&&(dataString[n]<='9')){
+                temp = (temp<<4) + (dataString[n]-'0');
+            }
+        }
+        dataInHex = temp;
+        dataOuts.push_back(dataInHex);
+    } else {
+    //   cout << dataString << endl;
+        temp = atoi(dataString.c_str());
+        dataInHex = temp;
+        dataOuts.push_back(dataInHex);
+    }
+    dataInHex = 0;
 }
 void byteFun(){
+    while ((dataString[0]==' ')||(dataString[0]=='\'')){
+        dataString = dataString.substr(1,-1);
+    }
+    if ((dataString[0] >= 45)&&(dataString[0] <= 57)){
+        dataInHex += (atoi(dataString.c_str())&255)<<(8*characters);
+    } else {
+        dataInHex += ((int)dataString[0]<<(8*(characters)));
+    }
+    characters++; //More acurately 'bytes++'.
+    if (characters == 4){
+        dataOuts.push_back(dataInHex);
+        //cout <<"dataInHex = "<<dataInHex<<endl;
+        dataInHex = 0;
+        characters = 0;
+    }
 }
 void doubleFun(){
+    if (characters != 0){
+        characters = 0;
+        dataOuts.push_back(dataInHex);
+    }
+    double dub = atof(dataString.c_str());
+    long long *point = (long long *)&dub; //The baddest of practices.
+//    cout << "the contents of " << point << " are " << *point << endl;
+    dataInHex = (*point)&(-1); //4294967295 aka 0xffffff
+    dataOuts.push_back(dataInHex);
+    dataInHex = (*point)>>32;
+    dataOuts.push_back(dataInHex);
+    dataInHex = 0;
 }
 
 int main() {
@@ -481,10 +545,11 @@ int main() {
             }
         } else {
             textInstrucs.push_back(instance.string0);
-            //cin >> s1;///
         }
     }while(instance.mnemonic !=".end");
-
+    if (characters !=0){
+        dataOuts.push_back(dataInHex);
+    }
     for(int i=0; i< textInstrucs.size(); i++){
         instance.string0 = textInstrucs[i];
         instance.tester(Dictionary);
@@ -500,6 +565,7 @@ int main() {
             }
             ii++; //Not sure why I didn't use a for-loop.
         }
+        cout << endl;
     }
     return 0;
 }

@@ -4,9 +4,10 @@
 	<map>
 	<string>
 
-1384741723 source:c:\users\james\documents\github\toe\start2\main.cpp
+1387793857 source:c:\users\james\documents\github\toe\start2\main.cpp
 	<iostream>
-	<map>
-	<cstdio>
+	<algorithm>
 	<string>
+	<map>
+	<vector>
 

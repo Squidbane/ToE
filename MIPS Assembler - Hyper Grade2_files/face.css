@@ -1,0 +1,144 @@
+body
+{
+	font-family:arial, sans serif;	
+	font-size:100%;
+}
+
+.fatty_form
+{
+	height:32px;
+	width:100%;
+	font-size:25px;
+}
+
+img
+{
+	border-width:0px;
+}
+
+div.form
+{
+	background-color:lightgrey;
+	margin-top:10px;
+	margin-bottom:10px;
+	padding:5px;	
+}
+
+.center
+{
+	text-align:center;	
+}
+
+.box_center
+{
+	margin-left:auto;
+	margin-right:auto;
+}
+
+a.head_band_link
+{
+	text-decoration:none;
+	color:white;	
+	margin:10px;
+}
+
+a.register_now_link
+{
+	text-decoration:none;
+	color:white;	
+	margin:10px;
+	padding:10px;
+	background-color:#D14836;
+	height:27px;
+	
+}
+
+a.head_band_link:hover
+{				
+	text-decoration:underline;
+	background-color:rgb(48,48,48);	
+	color:red;				
+}
+
+a.register_now_link:hover
+{	
+	background-color:#Df4f3f;	
+}
+
+#menu
+{
+	background-color:#2D2D2D;	
+	position:absolute;
+	top:0px;
+	left:0px;
+	width:100%;		
+	height:35px;
+}
+
+#main_content
+{		
+	margin-top:48px;		
+	margin-left:10px;
+	margin-right:10px;
+}
+
+.privacy_link
+{
+	color:rgb(144,144,144);	
+}
+
+dt
+{
+	margin: 20px;
+}
+
+#footer
+{								
+	font-size:70%;
+	color:rgb(144,144,144);	
+	text-align:center;
+}
+
+.tool
+{
+	width:900px;
+	margin-left:auto;
+	margin-right:auto;	
+}
+
+.correct, .incorrect, .submitted
+{
+	font-family: courier;
+	text-align: center;
+	font-weight: bold;
+	font-size: 120%;
+}
+
+.code
+{
+	background-color:black;
+	color:white;
+	font-family:courier;
+	font-size:130%;
+	font-weight:bold;
+}
+
+.program_analysis_header
+{
+	background-color:lightgrey;
+}
+
+.good, .correct
+{
+	background-color: #55FF55;
+}
+
+.bad, .incorrect
+{
+	background-color: #FFAAAA;
+}
+
+.submitted
+{
+	background-color: yellow;
+}
