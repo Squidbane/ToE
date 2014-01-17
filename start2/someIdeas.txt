@@ -1,7 +1,7 @@
 while (between .text and .data/.end)
   dock string (if pound symbol found, delete everything thats not before it)
   if colon symbol found,
-    save the string of characters before the colon to labelMap, along with
+    save the string of characters before the colon to labelsMap, along with
     the current value of counter.
   save instructions to instructions vector
   counter++
