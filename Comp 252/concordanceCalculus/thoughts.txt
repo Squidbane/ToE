@@ -1,0 +1,9 @@
+for_each( // element from
+object.begin, /** to */ object.end,
+doThis() );
+
+openParenthesesCount = 0;
+closeParenthesesCount = 0;
+while((openParenthesesCount == 0)||(openParenthesesCount != closeParenthesesCount)){
+	moveAlongTheLine();
+}

@@ -1,15 +1,16 @@
 #include <iostream>
 #include <algorithm>
+//#include <pthread.h>
 
 using namespace std;
 
-//positionOnLine;
+//positionOnLine; potato
 
 struct InputLine {
     string lineOfText;
-    string box[];
+    string box[5];
 
-    InputLine(){
+    InputLine():lineOfText(""){
         getline(cin, lineOfText);
         putWordsInTheirBoxes();
     }
@@ -56,7 +57,7 @@ void outputAllTheLinesInTheMap(){
 }
 
 void simplifyAndEcho(){
-    cout << "Hello" << endl;
+    cout << "Hello Potato" << endl;
 }
 
 void simplifyAndEchoAllTheEquations(){
