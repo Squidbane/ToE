@@ -1,18 +1,32 @@
 #include <iostream>
 #include <algorithm>
 #include <pthread.h>
-#include <cstdio>
 
 using namespace std;
 
-//positionOnLine; potato
+//positionOnLine;
 
 struct InputLine {
     string lineOfText;
+
+    InputLine(){
+        getline(cin, lineOfText);
+    }
+
+    bool hasAColon(){
+        ///
+        return true;
+    }
+    bool looksLikeMath(){
+        ///
+        return true;
+    }
+} theInput;
+
+struct lineOfWords {
     string box[5];
 
-    InputLine():lineOfText(""){
-        getline(cin, lineOfText);
+    lineOfWords(){
         putWordsInTheirBoxes();
     }
 
@@ -27,15 +41,7 @@ struct InputLine {
         }
         return true;
     }
-    bool hasAColon(){
-        ///
-        return true;
-    }
-    bool looksLikeMath(){
-        ///
-        return true;
-    }
-} theInput;
+};
 
 void loadALine() {
     ///
@@ -58,56 +64,21 @@ void outputAllTheLinesInTheMap(){
 }
 
 void simplifyAndEcho(){
-    cout << "Hello Potato" << endl;
+    cout << "Hello" << endl;
 }
 
 void simplifyAndEchoAllTheEquations(){
     simplifyAndEcho();
 }
-void * do_work(void * t){
-
-int i;
-long tid;
-double result =0.0;
-tid = *(long*)t;
-cout << " Thread " << tid << "starting" << endl;
-if (tid == 2){
-cout<<"sleep(15);"<<endl;
-}
-cout << " Thread " << tid << "finished" << endl;
-//pthread_exit(NULL);
-
-}
-
-void *TaskCode(void *argument)
-{
-   int tid;
-
-   tid = *((int *) argument);
-   printf("Hello World! It's me, thread %d!\n", tid);
-
-   /* optionally: insert more useful stuff here */
-
-   return NULL;
-}
 
 int main()
 {
-    pthread_t threads[5];
-    int thread_args[5];
-    int rc, i;
-    for (i=0; i<5; ++i){
-        rc = pthread_create(&threads[i], NULL, TaskCode, (void *) &thread_args[i]);
-    }
-    for (i=0; i<5; ++i) {
-      // block until thread i completes
-      rc = pthread_join(threads[i], NULL);
-      printf("In main: thread %d is complete\n", i);
-   }
-    readInputLine();
+    cout << "..starting up.." << endl;
+//    readInputLine();
     if (theInput.looksLikeMath()){
         if (theInput.hasAColon()) {
             loadAllTheLinesIntoTheMap();
+
             simplifyAndEchoAllTheEquations();
         } else {
         simplifyAndEcho();

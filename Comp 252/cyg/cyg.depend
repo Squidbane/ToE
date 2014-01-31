@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1391064501 source:c:\users\james\documents\github\toe\comp 252\cyg\main.cpp
+	<iostream>
+	<algorithm>
+	<pthread.h>
+
