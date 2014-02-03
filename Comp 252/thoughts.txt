@@ -7,3 +7,13 @@ closeParenthesesCount = 0;
 while((openParenthesesCount == 0)||(openParenthesesCount != closeParenthesesCount)){
 	moveAlongTheLine();
 }
+
+
+
+
+
+for each digit before the colon
+	add an x before the digits
+
+for each digit after the colon
+	add an x after the colon

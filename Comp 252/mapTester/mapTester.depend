@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1391453675 source:c:\users\james\documents\github\toe\comp 252\maptester\main.cpp
+	<iostream>
+	<map>
+	<vector>
+
