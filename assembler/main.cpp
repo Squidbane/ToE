@@ -1,9 +1,12 @@
-#include <iostream>
+//#include <iostream>
 #include <algorithm>
 #include <string>
 #include <map>
 #include <vector>
+#include <fstream>
 using namespace std;
+
+ifstream hyper;
 
 vector<string> textInstrucs;
 vector<int> dataOuts;
@@ -211,7 +214,7 @@ public:
         }else if(form =='J'){
             return temp+j();
         }else {
-            cout << "ERROR! ERROR! VERY BAD!"<<endl;
+            //cout << "ERROR! ERROR! VERY BAD!"<<endl;
             return 0;
         }
     }
@@ -279,7 +282,8 @@ private:
 };
 Assem instance;
 void Assem::getLineJK(){
-    getline(cin, string0);
+    getline(::hyper, string0);
+    //getline(cin, string0);
     int poundLoc = string0.find('#');
     string0 = string0.substr(0,poundLoc-1);
     removeJunk('\t');
@@ -349,16 +353,17 @@ void Assem::tester(map<string,Definition> &Instrucs){
         ::outputHex(bytes);
         counter++;
         if (counter %4 == 3){
-            cout<<"\n";
+            //cout<<"\n";
         }
         return;
     }
 }
 void outputHex(int someInt){
     for (int n=1;n<=8;n++){ // From left to right, cout the hex digits of someInt
-        cout << ((someInt>>(4*(8-n)))&15);
+        ((someInt>>(4*(8-n)))&15);
+        //cout << ((someInt>>(4*(8-n)))&15);
     }
-    cout << " ";
+    //cout << " ";
 }
 int getRegNum(string reg){
     if (reg == regNames[31]) {
@@ -505,6 +510,12 @@ void doubleFun(){
 }
 
 int main() {
+    map<string,Definition> Dictionary;
+    fillMap(Dictionary);
+    instance = Assem();
+for (int runs=0;runs<300;runs++){
+    hyper.open ("hypergrade.txt", ios::in);
+
     textInstrucs.reserve(260);  //When dynamic arrays are completely filled, more
     dataOuts.reserve(32);       //memory must be allocated. This often involves
                                 //copying the whole array to a new location;
@@ -512,11 +523,8 @@ int main() {
                                 //were arbitrarily chosen but should be sufficient
                                 //in the majority of cases.
     int dataExists = 0;
-    cout<<hex;
-    cout<<"[400024]"<<endl;
-    map<string,Definition> Dictionary;
-    fillMap(Dictionary);
-    instance = Assem();
+    //cout<<hex;
+    //cout<<"[400024]"<<endl;
     instance.counter = 0;
 
     do{
@@ -554,18 +562,22 @@ int main() {
         instance.string0 = textInstrucs[i];
         instance.tester(Dictionary);
     }
-    cout << endl;
+
+    hyper.close();
+
+    //cout << endl;
     if (dataExists == 1){
-        cout << "[10010000]"<<endl;
+        //cout << "[10010000]"<<endl;
         int ii = 1;
         while (ii <= (int)dataOuts.size()) {
             ::outputHex(dataOuts[ii-1]);
             if (ii%4 == 0){
-                cout<<endl;
+                //cout<<endl;
             }
             ii++; //Not sure why I didn't use a for-loop.
         }
-        cout << endl;
+        //cout << endl;
     }
+}
     return 0;
 }

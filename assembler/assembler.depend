@@ -1,8 +1,9 @@
 # depslib dependency file v1.0
-1387794267 source:c:\users\james\documents\github\toe\assembler\main.cpp
+1391650340 source:c:\users\james\documents\github\toe\assembler\main.cpp
 	<iostream>
 	<algorithm>
 	<string>
 	<map>
 	<vector>
+	<fstream>
 
