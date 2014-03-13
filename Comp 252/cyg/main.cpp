@@ -1,11 +1,12 @@
 /* This file can be found at: github.com/Squidbane/ToE/tree/master/Comp 252/cyg/main.cpp */
 #include <iostream>
 #include <algorithm>
-#include <numeric>
+//#include <numeric>
 #include <fstream>
 #include <vector>
 #include <map>
 #include <pthread.h>
+#include <string>
 
 using namespace std;
 #define DEBUG_MODE true
@@ -47,14 +48,36 @@ struct RawLine {
     }
 } theInput;
 
+string uglifyThis(string);
+
 struct RefinedLine {
     vector<string> words;
+    string key;
 
     RefinedLine(){
         putWordsInTheirBoxes();
     }
 
     void putWordsInTheirBoxes(){
+        int spaceLoc = theInput.lineOfText.find(' ');
+        int poundLoc = theInput.lineOfText.find('#');
+        theInput.lineOfText.erase(poundLoc,1);
+        int nextSpace;
+        key = ::uglifyThis(theInput.lineOfText.substr(0,spaceLoc));
+        #if DEBUG_MODE
+            cout << key << endl;
+        #endif // DEBUG_MODE
+        do{
+            nextSpace = theInput.lineOfText.find(' ',spaceLoc+1);
+            #if DEBUG_MODE
+                cout << "spaceLoc = "<< spaceLoc << " nextSpace = " << nextSpace << endl;
+            #endif // DEBUG_MODE
+            words.push_back( theInput.lineOfText.substr( spaceLoc+1, nextSpace-spaceLoc-1 ) );
+            #if DEBUG_MODE
+                cout << words.back() << endl;
+            #endif // DEBUG_MODE
+            spaceLoc = nextSpace;
+        } while (spaceLoc != -1);
         return;
     }
 };
@@ -65,8 +88,22 @@ struct OutputLine {
     vector<string>::iterator it;
 
     OutputLine(vector<string> words){
+        leftWing = vector<string>(words.size());
+        rightWing = vector<string>(words.size());
+        #if DEBUG_MODE
+            cout << "calling OutputLine constructor" <<endl;
+            cout << "the first word in words is " << *(words.begin()) << endl;
+        #endif
         copy(words.begin()+1, words.end(), rightWing.begin());
+        #if DEBUG_MODE
+            cout << "the first word in rightWing is " << *(rightWing.begin()) <<endl;
+        #endif
         reverse_copy(words.begin(), words.end(), leftWing.begin()); //end->back
+        #if DEBUG_MODE
+            cout << "Construction complete" <<endl;
+        #endif
+    }
+    OutputLine(){
     }
 
     bool add(vector<string> words){
@@ -93,8 +130,21 @@ struct OutputLine {
     }
     string stringify(){
         reverse(leftWing.begin(),leftWing.end());
-        return  accumulate(leftWing.begin(), leftWing.end(), string(" ")) + string(" ") +
-                accumulate(rightWing.begin()+4, rightWing.end(), string(" "));
+        string temp = "";
+        for(vector<string>::iterator it = leftWing.begin(); it != leftWing.end(); it++){
+            temp += *it + " ";
+        }
+        for(vector<string>::iterator it = rightWing.begin()+4; it != rightWing.end(); it++){
+            temp += *it + " ";
+        }
+        temp.erase(temp.find_last_not_of(" ")+1);
+//        string temp = accumulate(leftWing.begin(), leftWing.end(), string(""));
+//        cout << temp << endl;
+//        temp.append(" ");
+//        cout << temp << endl;
+//        string temp2 = accumulate(rightWing.begin()+4, rightWing.end(), string(""));
+        return temp;
+
     }
 };
 
@@ -163,7 +213,18 @@ int main()
         }
     } else {
         //loadAllTheLinesIntoTheMap();
-
+        RefinedLine refLine = RefinedLine();
+        #if DEBUG_MODE
+            cout << "else" <<endl;
+        #endif
+        outputMap[refLine.key] = OutputLine(refLine.words);
+        #if DEBUG_MODE
+            cout << refLine.key <<"."<< endl;
+            cout << outputMap.begin()->second.stringify() <<endl;
+        #endif
+        while(!theInput.refreshFailed()){
+            theInput.refresh();
+        }
         outputAllTheLinesInTheMap();
     }
     cout << "Don't pass hypergrade just yet." << endl;
