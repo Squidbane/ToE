@@ -1,0 +1,78 @@
+# dot commands
+.data
+byte1:	.byte		'a'
+wrde:	.word		1, -32767, 0x32767
+stra:	.ascii		""			# effectively a do nothing statement
+str7:	.ascii		"Foo"
+duble1:	.double		3.14159
+str1:	.asciiz		"This command loads stuff"
+spcg:	.space		3
+str9:	.ascii		"Fooba"
+str8:	.ascii		"Foob"
+spcf:	.space		1
+spch:	.space		4
+str6:	.asciiz		"a"
+str3:	.asciiz		""
+str2:	.asciiz		"a"
+wrdd:	.word		1
+spci:	.space		5
+byte2:	.byte		1, -1, 'A'
+spc5:	.space		1
+str4:	.asciiz		"a"
+float1:	.float		3.14159
+strb:	.ascii		"Foo"
+
+.globl		main
+.text
+
+# comments
+main:		#this is first label
+
+# assembly instructions
+		addu	$v0 $s0, $s1
+		break	2
+		and		$v0 $s0, $s1
+
+		xor		$v0 $s0, $s1
+		tlt		$s0, $s1
+		syscall
+		madd	$s0, $s1
+		mflo	$v0
+		sllv	$v0 $s0, $s1
+next3:	
+		sub		$v0 $s0, $s1
+		or		$v0 $s0, $s1
+		multu	$s0, $s1
+		
+		sra		$v0 $s0, 3
+		subu	$v0 $s0, $s1
+		msub	$s0, $s1
+		tltu	$s0, $s1
+		slt		$v0 $s0, $s1
+		sltu	$v0 $s0, $s1
+end:	
+next0:	jalr	$ra
+
+		msubu	$s0, $s1
+		mtlo	$s0
+		sll		$v0 $s0, 3
+		srl		$v0 $s0, 3
+		mfhi	$v0
+		tgeu	$s0, $s1
+		nor		$v0 $s0, $s1
+		movz	$v0 $s0, $s1
+		maddu	$s0, $s1
+		nop
+
+		
+		teq		$s0, $s1
+		movn	$v0 $s0, $s1
+		clo		$v0 $s0
+next2:	
+		mult	$s0, $s1
+		srlv	$v0 $s0, $s1
+		add		$v0 $s0, $s1
+next1:	
+		mthi	$s0
+		clz		$v0 $s0
+		tne		$s0, $s1

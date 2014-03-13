@@ -1,7 +1,6 @@
 # depslib dependency file v1.0
-1390989328 source:c:\users\james\documents\github\toe\comp 252\concordancecalculus\main.cpp
+1394138418 source:c:\users\james\documents\github\toe\comp 252\concordancecalculus\main.cpp
 	<iostream>
 	<algorithm>
 	<pthread.h>
-	<cstdio>
 

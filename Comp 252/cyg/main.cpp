@@ -10,14 +10,13 @@
  * way that even dummies like future-me can understand it without much effort.
  * However, over the past month, I've been reading about modern C++ and thinking a lot about what kind
  * of programmer I want to be.
- * I've thus come up with a different set of goals for this project:
+ * I've thus come up with a different set of goals for this particular project:
  *
  * 1. Make it multithreaded. (I want to learn, and there's no time like the present.)
  *    Unfortunately this rule poses a problem because I can't send compiler flags to Hypergrade to
  *    activate C++11 for <threads>, or link the libraries for OpenMP or Boost/Threads. (Trying to
  *    #include any of those, or <process>, gives me an error.) AFAIK this leaves me with only one
- *    recourse: pthreads. (My Windows machine of course does not support POSIX threads natively,
- *    so I wound up installing CygWin and integrating it with Code::Blocks.)
+ *    recourse: pthreads.
  *
  * 2. Avoid excessive OOP. (I already took Java!)
  *
@@ -29,7 +28,8 @@
  *      lot of large objects to lvalues, references wont save me a meaningful amount of execution-time.
  *      See: http://cpp-next.com/archive/2009/08/want-speed-pass-by-value/ )
  *
- * 4. Try to pass all 6 assignments with one unmodified program. (Shoot for the moon!)
+ * 4. Try to pass the last 5 assignments with one unmodified program. (Unfortunately I don't have enough
+ *    late days at this point to submit this for the simple concordance.)
  *
  * 5. Make the code self-explanatory. (But not quite to the extent I originally planned.)
  *
@@ -38,16 +38,39 @@
  */
 #include <iostream>
 #include <algorithm>
+#include <fstream>
+#include <vector>
+#include <map>
 #include <pthread.h>
 
 using namespace std;
 #define DEBUG_MODE true
+#define FILE_MODE true
+#if FILE_MODE
+    fstream file;
+    #define INPUT file
+#else
+    #define INPUT cin
+#endif
 
-struct InputLine {
+struct RawLine {
     string lineOfText;
 
-    InputLine(){
-        getline(cin, lineOfText);
+    RawLine(){
+        getline(INPUT, lineOfText);
+    }
+
+    void refresh(){
+        getline(INPUT, lineOfText);
+        return;
+    }
+
+    bool refreshFailed(){
+        if(!::INPUT.good() || lineOfText == ".end") {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     bool hasAColon(){
@@ -60,23 +83,49 @@ struct InputLine {
     }
 } theInput;
 
-struct lineOfWords {
-    string box[5];
+struct RefinedLine {
+    vector<string> words;
 
-    lineOfWords(){
+    RefinedLine(){
         putWordsInTheirBoxes();
     }
 
     void putWordsInTheirBoxes(){
         return;
     }
+};
 
-    bool itFits(){
- //       find_if(box.begin,box.end,( bothExist(a[i],b[i]) && areUnequal(a[i],b[i]) )){
-        if(1){
-            return false;
+struct OutputLine {
+    vector<string> leftWing;
+    vector<string> rightWing;
+    vector<string>::iterator it;
+
+    OutputLine(vector<string> words){
+        copy(words.begin()+1, words.end(), rightWing.begin());
+        reverse_copy(words.begin(), words.end(), leftWing.begin()); //end->back
+    }
+
+    bool add(vector<string> words){
+        if(search(rightWing.begin(), rightWing.end(), // haystack
+                  words.begin(), words.end()) != rightWing.end()) {
+            return true;
+        } else if (search(rightWing.begin(), rightWing.end(), //end->back
+                          words.begin(), words.end()) != rightWing.end()) { //end->back *2
+            rightWing.push_back(words.back());
+            return true;
+        } else {
+            reverse(words.begin(),words.end());
+            if(search(leftWing.begin(), leftWing.end(),
+                      words.begin(), words.end()) != leftWing.end()) {
+                return true;
+            } else if (search(leftWing.begin(), leftWing.end(), //end->back
+                              words.begin(), words.end()) != leftWing.end()) { //end->back *2
+                leftWing.push_back(words.back());
+                return true;
+            } else {
+                return false;
+            }
         }
-        return true;
     }
 };
 
@@ -85,7 +134,7 @@ void loadALine() {
 }
 
 void readInputLine() {
-    theInput = InputLine();
+    theInput = RawLine();
 }
 
 void loadAllTheLinesIntoTheMap(){
@@ -117,7 +166,12 @@ int main()
     #if DEBUG_MODE
         cout << "..starting up.." << endl;
     #endif
-//    readInputLine();
+    #if FILE_MODE
+        ::file.open("hypergrade.txt", ios::in );
+        theInput = RawLine(); // Invokes the copy assignment operator
+                                // theInput.lineOfText := temporary.lineOfText
+    #endif
+    cout << theInput.lineOfText << endl;
     if (theInput.looksLikeMath()){
         if (theInput.hasAColon()) {
             loadAllTheLinesIntoTheMap();
@@ -131,5 +185,8 @@ int main()
         outputAllTheLinesInTheMap();
     }
     cout << "Don't pass hypergrade just yet." << endl;
-    return EXIT_SUCCESS;
+    #if FILE_MODE
+        ::file.close();
+    #endif
+    return 0;
 }

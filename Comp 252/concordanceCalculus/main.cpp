@@ -1,7 +1,7 @@
 #include <iostream>
 #include <algorithm>
 #include <pthread.h>
-#include <cstdio>
+//#include <cstdio>
 
 using namespace std;
 
@@ -75,7 +75,7 @@ if (tid == 2){
 cout<<"sleep(15);"<<endl;
 }
 cout << " Thread " << tid << "finished" << endl;
-//pthread_exit(NULL);
+pthread_exit(NULL);
 
 }
 
@@ -84,7 +84,7 @@ void *TaskCode(void *argument)
    int tid;
 
    tid = *((int *) argument);
-   printf("Hello World! It's me, thread %d!\n", tid);
+//   printf("Hello World! It's me, thread %d!\n", tid);
 
    /* optionally: insert more useful stuff here */
 
@@ -102,7 +102,7 @@ int main()
     for (i=0; i<5; ++i) {
       // block until thread i completes
       rc = pthread_join(threads[i], NULL);
-      printf("In main: thread %d is complete\n", i);
+//      printf("In main: thread %d is complete\n", i);
    }
     readInputLine();
     if (theInput.looksLikeMath()){
