@@ -1,12 +1,10 @@
 /* This file can be found at: github.com/Squidbane/ToE/tree/master/Comp 252/cyg/main.cpp */
 #include <iostream>
 #include <algorithm>
-//#include <numeric>
 #include <fstream>
 #include <vector>
 #include <map>
 #include <pthread.h>
-#include <string>
 
 using namespace std;
 #define DEBUG_MODE true
@@ -65,16 +63,16 @@ struct RefinedLine {
         int nextSpace;
         key = ::uglifyThis(theInput.lineOfText.substr(0,spaceLoc));
         #if DEBUG_MODE
-            cout << key << endl;
+            //cout << key << endl;
         #endif // DEBUG_MODE
         do{
             nextSpace = theInput.lineOfText.find(' ',spaceLoc+1);
             #if DEBUG_MODE
-                cout << "spaceLoc = "<< spaceLoc << " nextSpace = " << nextSpace << endl;
+                //cout << "spaceLoc = "<< spaceLoc << " nextSpace = " << nextSpace << endl;
             #endif // DEBUG_MODE
             words.push_back( theInput.lineOfText.substr( spaceLoc+1, nextSpace-spaceLoc-1 ) );
             #if DEBUG_MODE
-                cout << words.back() << endl;
+                //cout << words.back() << endl;
             #endif // DEBUG_MODE
             spaceLoc = nextSpace;
         } while (spaceLoc != -1);
@@ -91,16 +89,16 @@ struct OutputLine {
         leftWing = vector<string>(words.size());
         rightWing = vector<string>(words.size());
         #if DEBUG_MODE
-            cout << "calling OutputLine constructor" <<endl;
-            cout << "the first word in words is " << *(words.begin()) << endl;
+            //cout << "calling OutputLine constructor" <<endl;
+            //cout << "the first word in words is " << *(words.begin()) << endl;
         #endif
         copy(words.begin()+1, words.end(), rightWing.begin());
         #if DEBUG_MODE
-            cout << "the first word in rightWing is " << *(rightWing.begin()) <<endl;
+            //cout << "the first word in rightWing is " << *(rightWing.begin()) <<endl;
         #endif
         reverse_copy(words.begin(), words.end(), leftWing.begin()); //end->back
         #if DEBUG_MODE
-            cout << "Construction complete" <<endl;
+            //cout << "Construction complete" <<endl;
         #endif
     }
     OutputLine(){
@@ -109,22 +107,40 @@ struct OutputLine {
     bool add(vector<string> words){
         if(search(rightWing.begin(), rightWing.end(), // haystack
                   words.begin(), words.end()) != rightWing.end()) {
+            #if DEBUG_MODE
+                //cout<<"already in rightWing"<<endl;
+            #endif // DEBUG_MODE
             return true;
-        } else if (search(rightWing.begin(), rightWing.end(), //end->back
-                          words.begin(), words.end()) != rightWing.end()) { //end->back *2
+        } else if (search(rightWing.begin(), rightWing.end()-1, //end->back
+                          words.begin(), words.end()-1) != rightWing.end()-1) { //end->back *2
             rightWing.push_back(words.back());
+            #if DEBUG_MODE
+                cout<<rightWing.back()<<endl;
+            #endif // DEBUG_MODE
             return true;
         } else {
             reverse(words.begin(),words.end());
             if(search(leftWing.begin(), leftWing.end(),
                       words.begin(), words.end()) != leftWing.end()) {
-                return true;
-            } else if (search(leftWing.begin(), leftWing.end(), //end->back
-                              words.begin(), words.end()) != leftWing.end()) { //end->back *2
-                leftWing.push_back(words.back());
+                #if DEBUG_MODE
+                    //cout<<"already in leftWing"<<endl;
+                #endif // DEBUG_MODE
                 return true;
             } else {
-                return false;
+                //cout<< int(words.begin()+words.size()-1) << endl;
+                if (search(leftWing.begin(), leftWing.end()-1, //end->back
+                              words.begin(), words.begin()+words.size()-1) != leftWing.end()-1) { //end->back *2
+                    leftWing.push_back(words.back());
+                    #if DEBUG_MODE
+                        cout<<leftWing.back()<<endl;
+                    #endif // DEBUG_MODE
+                    return true;
+                } else {
+                    #if DEBUG_MODE
+                        //cout<<"doesn't fit"<<endl;
+                    #endif // DEBUG_MODE
+                    return false;
+                }
             }
         }
     }
@@ -147,23 +163,32 @@ struct OutputLine {
 
     }
 };
+map<string,OutputLine> outputMap;
 
-void loadALine() {
+void loadALine(RefinedLine & refLine) {
     theInput.refresh();
+    refLine = RefinedLine();
+    map<string,OutputLine>::iterator it = outputMap.find(refLine.key);
+    if (it == outputMap.end()) {
+        outputMap[refLine.key] = OutputLine(refLine.words);
+    } else {
+        it->second.add(refLine.words);
+    }
 }
 
 //void loadAllTheLinesIntoTheMap(){
 //    loadALine();
 //}
 
-void outputALine(){
-    #if DEBUG_MODE
-        cout << "Hi" << endl;
-    #endif
+void outputALine(map<string,OutputLine>::iterator it){
+    cout << it->first <<" "<< it->second.stringify() <<endl;
 }
 
 void outputAllTheLinesInTheMap(){
-    outputALine();
+    map<string,OutputLine>::iterator it;
+    for( it = ::outputMap.begin(); it != ::outputMap.end(); ++it){
+        outputALine(it);
+    }
 }
 
 void simplifyAndEcho(){
@@ -189,12 +214,10 @@ string uglifyThis(string pretty) {
     return ugly;
 }
 
-map<string,OutputLine> outputMap;
-
 int main()
 {
     #if DEBUG_MODE
-        cout << "..starting up.." << endl;
+        //cout << "..starting up.." << endl;
     #endif
     #if FILE_MODE
         ::file.open("hypergrade.txt", ios::in );
@@ -202,7 +225,6 @@ int main()
                                 // theInput.lineOfText := temporary.lineOfText
     #endif
 
-    cout << theInput.lineOfText << endl;
     if (theInput.looksLikeMath()){
         if (theInput.hasAColon()) {
             //loadAllTheLinesIntoTheMap();
@@ -215,19 +237,18 @@ int main()
         //loadAllTheLinesIntoTheMap();
         RefinedLine refLine = RefinedLine();
         #if DEBUG_MODE
-            cout << "else" <<endl;
+            //cout << "else" <<endl;
         #endif
         outputMap[refLine.key] = OutputLine(refLine.words);
         #if DEBUG_MODE
-            cout << refLine.key <<"."<< endl;
-            cout << outputMap.begin()->second.stringify() <<endl;
+            //
         #endif
         while(!theInput.refreshFailed()){
-            theInput.refresh();
+            loadALine(refLine);
         }
         outputAllTheLinesInTheMap();
     }
-    cout << "Don't pass hypergrade just yet." << endl;
+    //cout << "Don't pass hypergrade just yet." << endl;
     #if FILE_MODE
         ::file.close();
     #endif
