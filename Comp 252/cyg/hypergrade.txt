@@ -1,80 +1,62 @@
-# dot commands
-.data
-byte1:	.byte		'a'
-wrde:	.word		1, -32767, 0x32767
-stra:	.ascii		""			# effectively a do nothing statement
-str7:	.ascii		"Foo"
-duble1:	.double		3.14159
-str1:	.asciiz		"This command loads stuff"
-spcg:	.space		3
-str9:	.ascii		"Fooba"
-str8:	.ascii		"Foob"
-spcf:	.space		1
-spch:	.space		4
-str6:	.asciiz		"a"
-str3:	.asciiz		""
-str2:	.asciiz		"a"
-wrdd:	.word		1
-spci:	.space		5
-byte2:	.byte		1, -1, 'A'
-spc5:	.space		1
-str4:	.asciiz		"a"
-float1:	.float		3.14159
-strb:	.ascii		"Foo"
-
-.globl		main
-.text
-
-# comments
-main:		#this is first label
-
-# assembly instructions
-		addu	$v0 $s0, $s1
-		break	2
-		and		$v0 $s0, $s1
-
-		xor		$v0 $s0, $s1
-		tlt		$s0, $s1
-		syscall
-		madd	$s0, $s1
-		mflo	$v0
-		sllv	$v0 $s0, $s1
-next3:	
-		sub		$v0 $s0, $s1
-		or		$v0 $s0, $s1
-		multu	$s0, $s1
-		
-		sra		$v0 $s0, 3
-		subu	$v0 $s0, $s1
-		msub	$s0, $s1
-		tltu	$s0, $s1
-		slt		$v0 $s0, $s1
-		sltu	$v0 $s0, $s1
-end:	
-next0:	jalr	$ra
-
-		msubu	$s0, $s1
-		mtlo	$s0
-		sll		$v0 $s0, 3
-		srl		$v0 $s0, 3
-		mfhi	$v0
-		tgeu	$s0, $s1
-		nor		$v0 $s0, $s1
-		movz	$v0 $s0, $s1
-		maddu	$s0, $s1
-		nop
-
-		
-		teq		$s0, $s1
-		movn	$v0 $s0, $s1
-		clo		$v0 $s0
-next2:	
-		mult	$s0, $s1
-		srlv	$v0 $s0, $s1
-		add		$v0 $s0, $s1
-next1:	
-		mthi	$s0
-		clz		$v0 $s0
-		tne		$s0, $s1
-
-.end
+100000:100000 nine times #six is forty-two
+2:2 each separate #dying ember wrought 
+2:2 separate dying #ember wrought its 
+2:3 sought to #borrow 
+2:5 whom the #angels name Lenore, 
+2:4 sorrow, sorrow #for the lost 
+2:1 the bleak #December, 
+2:4 surcease of #sorrow, sorrow for 
+100000:100000 times six #is forty-two
+2:5 For the #rare and radiant 
+2:4 for the #lost Lenore. 
+2:3 wished the #morrow; vainly I 
+2:4 From #my books surcease 
+2:3 Eagerly #I wished the 
+2:1 it was #in the bleak 
+2:1 Ah, #distinctly I remember, 
+100000:100000 nine #times six is
+2:1 #Ah, distinctly I 
+2:5 rare and #radiant maiden whom 
+2:1 was in #the bleak December, 
+2:3 #Eagerly I wished 
+2:3 vainly I #had sought to 
+2:2 dying ember #wrought its ghost 
+2:3 the morrow; #vainly I had 
+2:6 Nameless #here forevermore. 
+2:4 From my #books surcease of 
+2:5 angels name #Lenore, 
+2:5 radiant maiden #whom the angels 
+2:3 morrow; vainly #I had sought 
+2:5 maiden whom #the angels name 
+2:3 I wished #the morrow; vainly 
+2:3 I had #sought to borrow 
+2:2 And #each separate dying 
+2:1 in the #bleak December, 
+2:4 the lost #Lenore. 
+2:5 the rare #and radiant maiden 
+100000:100000 six is #forty-two
+2:4 #From my books 
+2:1 remember, it #was in the 
+2:4 of sorrow, #sorrow for the 
+2:2 ghost upon #the floor. 
+2:6 Nameless here #forevermore. 
+2:4 sorrow for #the lost Lenore. 
+2:2 wrought its #ghost upon the 
+2:2 And each #separate dying ember 
+2:5 #For the rare 
+2:2 #And each separate 
+100000:100000 #nine times six
+2:2 ember wrought #its ghost upon 
+2:5 and radiant #maiden whom the 
+2:3 Eagerly I #wished the morrow; 
+2:1 Ah, distinctly #I remember, it 
+2:1 I remember, #it was in 
+2:2 its ghost #upon the floor. 
+2:4 my books #surcease of sorrow, 
+2:5 the angels #name Lenore, 
+2:4 books surcease #of sorrow, sorrow 
+2:6 #Nameless here forevermore. 
+2:1 distinctly I #remember, it was 
+2:2 upon the #floor. 
+2:5 For #the rare and 
+2:3 had sought #to borrow

@@ -1,43 +1,7 @@
-/* This file can be found at: github.com/Squidbane/ToE/tree/master/Comp 252/cyg/main.cpp
- *
- * A few things: Feel free to skip these ramblings, as you won't need them to understand the program.
- * Initially my goal for this project was to make something that could pass maybe 3 out of the
- * 6 assignments on Hypergrade, while at the same time writing my functions in such a way that even
- * someone with no c++ knowledge could understand the program. (If you want to see what I had in mind,
- * go to github.com/Squidbane/ToE/commits/ , find “human readable control flow”(1-16-2014), and look at
- * Comp 252/concordanceCalculus/main.cpp .) I was frustrated that code I had written only a month prior
- * was now difficult for me to read, and I figured that it should be possible to write code in such a
- * way that even dummies like future-me can understand it without much effort.
- * However, over the past month, I've been reading about modern C++ and thinking a lot about what kind
- * of programmer I want to be.
- * I've thus come up with a different set of goals for this particular project:
- *
- * 1. Make it multithreaded. (I want to learn, and there's no time like the present.)
- *    Unfortunately this rule poses a problem because I can't send compiler flags to Hypergrade to
- *    activate C++11 for <threads>, or link the libraries for OpenMP or Boost/Threads. (Trying to
- *    #include any of those, or <process>, gives me an error.) AFAIK this leaves me with only one
- *    recourse: pthreads.
- *
- * 2. Avoid excessive OOP. (I already took Java!)
- *
- * 3.a. Avoid explicit use of pointers (I already took Data Structures in C!) except where necessary
- *      in order to use pthreads.
- *
- * 3.b. In general, pass by value, not by reference. (Modern compilers are extremely good at copy
- *      elision (especially in C++11, with its move semantics) so, unless they save me from saving a
- *      lot of large objects to lvalues, references wont save me a meaningful amount of execution-time.
- *      See: http://cpp-next.com/archive/2009/08/want-speed-pass-by-value/ )
- *
- * 4. Try to pass the last 5 assignments with one unmodified program. (Unfortunately I don't have enough
- *    late days at this point to submit this for the simple concordance.)
- *
- * 5. Make the code self-explanatory. (But not quite to the extent I originally planned.)
- *
- * 6. Avoid comments, they can be redundant and distracting. (See goal #5.)
- *    I should probably delete this big one.
- */
+/* This file can be found at: github.com/Squidbane/ToE/tree/master/Comp 252/cyg/main.cpp */
 #include <iostream>
 #include <algorithm>
+#include <numeric>
 #include <fstream>
 #include <vector>
 #include <map>
@@ -79,7 +43,7 @@ struct RawLine {
     }
     bool looksLikeMath(){
         //
-        return true;
+        return false;
     }
 } theInput;
 
@@ -127,19 +91,20 @@ struct OutputLine {
             }
         }
     }
+    string stringify(){
+        reverse(leftWing.begin(),leftWing.end());
+        return  accumulate(leftWing.begin(), leftWing.end(), string(" ")) + string(" ") +
+                accumulate(rightWing.begin()+4, rightWing.end(), string(" "));
+    }
 };
 
 void loadALine() {
-    //
+    theInput.refresh();
 }
 
-void readInputLine() {
-    theInput = RawLine();
-}
-
-void loadAllTheLinesIntoTheMap(){
-    loadALine();
-}
+//void loadAllTheLinesIntoTheMap(){
+//    loadALine();
+//}
 
 void outputALine(){
     #if DEBUG_MODE
@@ -161,6 +126,21 @@ void simplifyAndEchoAllTheEquations(){
     simplifyAndEcho();
 }
 
+string uglifyThis(string pretty) {
+    string ugly = pretty;
+    int colonLocation = ugly.find(':');
+    int endLocation = ugly.length();
+    for(unsigned int i=0; i < (endLocation - colonLocation); i++){
+        ugly.insert(ugly.begin()+colonLocation+1, 'x');
+    }
+    for(int i=0; i < (colonLocation); i++){
+        ugly.insert(ugly.begin(), 'x');
+    }
+    return ugly;
+}
+
+map<string,OutputLine> outputMap;
+
 int main()
 {
     #if DEBUG_MODE
@@ -168,20 +148,22 @@ int main()
     #endif
     #if FILE_MODE
         ::file.open("hypergrade.txt", ios::in );
-        theInput = RawLine(); // Invokes the copy assignment operator
+        theInput = RawLine();   // Invokes the copy assignment operator
                                 // theInput.lineOfText := temporary.lineOfText
     #endif
+
     cout << theInput.lineOfText << endl;
     if (theInput.looksLikeMath()){
         if (theInput.hasAColon()) {
-            loadAllTheLinesIntoTheMap();
+            //loadAllTheLinesIntoTheMap();
 
             simplifyAndEchoAllTheEquations();
         } else {
         simplifyAndEcho();
         }
     } else {
-        loadAllTheLinesIntoTheMap();
+        //loadAllTheLinesIntoTheMap();
+
         outputAllTheLinesInTheMap();
     }
     cout << "Don't pass hypergrade just yet." << endl;
